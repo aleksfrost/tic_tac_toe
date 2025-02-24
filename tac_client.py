@@ -4,19 +4,25 @@
 
 import socket
 
+from board import Board
+
 class TicTacToeClient:
     def __init__(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect(('localhost', 12345))
 
     def start(self):
+        self.board = Board()
         while True:
-            board_state = self.client_socket.recv(1024).decode("utf-8")
-            print(board_state)
+            board_state = self.client_socket.recv(1024).decode("utf-8").split("_")
             if "wins" in board_state or "draw" in board_state:
                 break
-            move = input("Enter your move (1-9): ")
+            else:
+                for _, butt, txt in zip(self.board.buttons.items(), board_state):
+                    butt["text"] = txt
+            move = "_".join(self.board.move)
             self.client_socket.send(bytes(move, "utf-8"))
+            #self.board.block_buttons()
 
 if __name__ == "__main__":
     client = TicTacToeClient()
